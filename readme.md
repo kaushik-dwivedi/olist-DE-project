@@ -49,7 +49,7 @@ This step ensures that the data structure supports efficient querying and analyt
 
 Schema Diagram:
 
-[Schema Diagram Placeholder]
+[images/olis_star_schema.jpg]
 
 The schema diagram represents the logical relationships between different entities in the dataset.
 
