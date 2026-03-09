@@ -2,116 +2,108 @@
 
 ## Overview
 
-This project demonstrates the implementation of a modern **Data Engineering pipeline using the Databricks Lakehouse platform**. The goal of the project is to ingest raw data from cloud object storage, process it using scalable data engineering practices, and prepare structured datasets that can be used for analytics and reporting.
+This project implements a **Data Engineering pipeline using the Databricks Lakehouse platform**. The pipeline ingests raw data from **Cloudflare R2 object storage**, processes it using scalable ingestion mechanisms, and transforms it into structured datasets for analytics.
 
-The pipeline integrates **Cloudflare R2 object storage with Databricks**, using automated ingestion and structured transformations. The project follows industry best practices such as **Medallion Architecture**, separation of ingestion and transformation layers, and version control using **Databricks Git folders**.
+The project demonstrates modern data engineering practices such as automated ingestion, layered data architecture, SQL-based transformations, and version-controlled development using Databricks Git folders.
 
----
+The dataset used in this project is the **Olist Brazilian E-Commerce Dataset**.
 
-## Project Objective
-
-The primary objective of this project is to design and implement a scalable data pipeline capable of handling both batch and streaming data sources. The pipeline ingests raw datasets, stores them in Delta Lake tables, applies transformations to clean and structure the data, and produces curated datasets suitable for analytical workloads.
-
-This project demonstrates core data engineering concepts including:
-
-* Data ingestion from cloud storage
-* Streaming ingestion for continuously arriving data
-* Data transformation and normalization
-* Layered data architecture
-* Version-controlled development
+Dataset Source:
+https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce
 
 ---
 
-## Architecture
+# 1. Data Ingestion
 
-The project is built using the **Medallion Architecture**, a layered data design pattern commonly used in modern data platforms.
+The data ingestion layer is responsible for loading raw files from **Cloudflare R2 object storage** into Databricks.
 
-### Bronze Layer
+Two ingestion strategies are implemented in this project:
 
-The Bronze layer contains raw ingested data directly from the source systems. The data is stored in Delta tables with minimal transformation. The purpose of this layer is to maintain a reliable and auditable copy of the original data.
+### Batch Ingestion
 
-### Silver Layer
+Static datasets are ingested using **batch processing**. These datasets change infrequently and are loaded as full datasets during scheduled runs.
 
-The Silver layer contains cleaned and standardized data derived from the Bronze layer. In this stage, transformations such as data type corrections, data validation, and normalization are applied. This layer prepares the data for downstream analytics and ensures consistency across datasets.
+### Streaming Ingestion
 
-### Gold Layer
+Transactional datasets are ingested using **Databricks Auto Loader with Structured Streaming**. This allows the pipeline to automatically detect and process new files as they arrive in cloud storage.
 
-The Gold layer contains curated datasets designed for business analytics and reporting. Data in this layer is typically aggregated, joined, or structured into domain-specific models that can be consumed by business intelligence tools.
+Streaming ingestion enables:
 
----
+* Incremental file processing
+* Automatic schema detection
+* Scalable data ingestion
 
-## Data Sources
+Ingestion jobs are **scheduled using Databricks workflows** to ensure the pipeline runs automatically.
 
-The project processes multiple datasets that represent different domains of an e-commerce platform.
-
-### CRM Data
-
-The CRM dataset includes information related to customers, products, and sellers. These datasets provide core reference information used across transactional data processing.
-
-### Geolocation Data
-
-The geolocation dataset contains geographic information that can be used to analyze customer and seller distribution across different regions.
-
-### Language Mapping
-
-The language dataset provides category translations that help standardize product category names.
-
-### Transactional Data
-
-The transactional dataset contains operational data related to orders, order items, payments, and reviews. This data represents the dynamic activity of the e-commerce platform and is processed using streaming ingestion to simulate real-time data arrival.
+All ingested data is stored in **Delta tables in the Bronze layer**.
 
 ---
 
-## Data Ingestion Strategy
+# 2. Schema Design (Data Modeling)
 
-Different ingestion strategies are applied based on the nature of the data.
+After ingestion, a logical schema is designed to define relationships between datasets and support analytical workloads.
 
-Static datasets such as CRM data, geolocation data, and language mappings are processed using batch ingestion. These datasets change infrequently and are typically loaded as complete datasets.
+The schema modeling stage focuses on identifying key entities and their relationships, such as customers, orders, products, and payments.
 
-Transactional datasets are ingested using **Databricks Auto Loader**, which enables efficient incremental processing of new files as they arrive in cloud storage. This approach supports scalable streaming ingestion while automatically managing schema detection and file tracking.
+This step ensures that the data structure supports efficient querying and analytical use cases.
 
----
+Schema Diagram:
 
-## Data Processing Workflow
+[Schema Diagram Placeholder]
 
-The overall workflow of the pipeline consists of three major stages.
-
-First, raw files are ingested from Cloudflare R2 and stored in Delta tables within the Bronze layer. This stage focuses on capturing the source data with minimal modification.
-
-Next, SQL-based transformations are applied to convert the raw data into structured and standardized datasets in the Silver layer. These transformations ensure consistent data types, handle missing values, and prepare the data for analytical use.
-
-Finally, the Gold layer produces curated datasets designed for business analysis. These datasets typically combine information from multiple Silver tables to generate meaningful insights.
+The schema diagram represents the logical relationships between different entities in the dataset.
 
 ---
 
-## Version Control
+# 3. SQL Transformations (ETL)
 
-The project is managed using **Databricks Git folders**, allowing the entire development workflow to be version-controlled. This integration enables collaboration, code tracking, and easier project management.
+Data transformations are implemented using **SQL-based ETL processes**.
 
-Using Git ensures that changes to ingestion logic, transformation scripts, and project documentation are properly tracked and can be reviewed or reverted when necessary.
+The transformation layer reads data from the Bronze tables and performs operations such as:
 
----
+* Data type standardization
+* Data validation
+* Cleaning and normalization
+* Joining related datasets
+* Preparing structured datasets
 
-## Key Features
+These transformations produce **Silver layer tables**, which contain cleaned and standardized data.
 
-This project demonstrates several important capabilities of modern data engineering systems.
+Further transformations generate **Gold layer datasets**, which are optimized for analytics and reporting.
 
-* Integration of cloud object storage with Databricks
-* Automated data ingestion using streaming pipelines
-* Layered data architecture for reliability and scalability
-* SQL-based transformation workflows
-* Version-controlled development using Git
-
----
-
-## Future Enhancements
-
-The project can be further enhanced with additional capabilities such as automated data quality validation, pipeline orchestration, monitoring, and integration with business intelligence tools for visualization and reporting.
-
-These enhancements would allow the pipeline to evolve into a fully production-ready data platform.
+Using SQL for transformations ensures that the pipeline remains easy to maintain and aligns with common analytics workflows.
 
 ---
 
-## Conclusion
+# 4. Physical Data Modeling
 
-This project showcases how a scalable and maintainable data pipeline can be implemented using Databricks and modern data engineering practices. By combining streaming ingestion, layered data architecture, and structured transformations, the pipeline provides a strong foundation for building analytics-ready datasets.
+The final stage of the pipeline focuses on **physical data modeling**, which defines how the data is stored and optimized in the Lakehouse environment.
+
+Physical modeling includes decisions related to:
+
+* Table structure
+* Partitioning strategy
+* Storage format
+* Query performance optimization
+
+All tables are stored using **Delta Lake format**, which provides reliability, scalability, and performance improvements.
+
+This stage ensures that the datasets are optimized for analytical queries and downstream data consumption.
+
+---
+
+# Version Control
+
+The entire project is maintained using **Databricks Git folder integration**, enabling version control for notebooks, scripts, and documentation.
+
+Version control provides:
+
+* Change tracking
+* Collaborative development
+* Structured project management
+
+---
+
+# Conclusion
+
+This project demonstrates how a scalable data pipeline can be built using Databricks by combining automated ingestion, structured data modeling, SQL-based transformations, and optimized storage design. The implementation follows industry best practices for building reliable and maintainable data engineering systems.
